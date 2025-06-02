@@ -1,0 +1,529 @@
+/* Color Palette: #ffc7c7 (light pink), #ffe2e2 (lighter pink), #f6f6f6 (light grey), #8785a2 (purple-grey) */
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background-color: #f6f6f6;
+  color: #333;
+}
+
+header {
+  background-color: #ffe2e2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+#logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #8785a2;
+  margin-right: 20px;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+}
+
+#city-select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #8785a2;
+  background-color: white;
+  color: #8785a2;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+main {
+  padding: 20px 40px;
+}
+
+.category-title {
+  color: #8785a2;
+  font-size: 1.6rem;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #ffe2e2;
+  padding-bottom: 10px;
+}
+
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.movie-card {
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease-in-out;
+}
+
+.movie-card:hover {
+    transform: translateY(-5px);
+}
+
+.movie-poster {
+  width: 100%;
+  padding-top: 140%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+.movie-info {
+  padding: 15px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.movie-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #8785a2;
+  margin-bottom: 8px;
+}
+
+.movie-synopsis {
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 12px;
+  flex-grow: 1;
+}
+
+.book-now-btn {
+  background-color: #8785a2;
+  color: white;
+  border: none;
+  padding: 12px;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 8px;
+  width: 100%;
+  margin-top: auto;
+  transition: background-color 0.3s;
+}
+
+.book-now-btn:hover:not(:disabled) {
+  background-color: #6b6885;
+}
+.book-now-btn:disabled {
+    background-color: #c0c0c0;
+    cursor: not-allowed;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Booking Page, Payment Page, Confirmation Page Styles */
+#booking-page, #payment-page, #confirmation-page {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  max-width: 900px;
+  margin: 20px auto;
+}
+
+#booking-page h2, #payment-page h2, #confirmation-page h2 {
+    color: #8785a2;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.booking-container {
+    max-width: 800px;
+    margin: auto;
+}
+
+.booking-header {
+  display: flex;
+  gap: 25px;
+  margin-bottom: 25px;
+  align-items: flex-start;
+}
+
+.booking-movie-poster {
+  width: 200px;
+  min-width: 200px;
+  height: 300px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.booking-info h2 {
+  margin: 0 0 12px;
+  color: #8785a2;
+  font-size: 1.8rem;
+}
+
+.booking-info p {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.booking-info p strong {
+    color: #333;
+}
+
+.booking-details label {
+  font-weight: bold;
+  display: block;
+  margin: 20px 0 8px;
+  color: #8785a2;
+  font-size: 1.1rem;
+}
+
+#cinema-select-dropdown {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.options-container {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.showtime-option-btn {
+  padding: 10px 18px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.showtime-option-btn.selected, .seat.selected {
+  background-color: #8785a2;
+  color: white;
+  border-color: #8785a2;
+}
+.showtime-option-btn:hover:not(.selected) {
+    background-color: #e0e0e0;
+}
+
+
+#seat-layout-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+.screen-info {
+    background-color: #333;
+    color: white;
+    padding: 8px;
+    text-align: center;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+#seat-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr); /* Example: 10 seats per row */
+  gap: 8px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.seat {
+  width: 35px;
+  height: 35px;
+  background-color: #cceeff;
+  border: 1px solid #99ccdd;
+  text-align: center;
+  line-height: 35px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background-color 0.2s;
+  user-select: none; /* Mencegah seleksi teks pada nomor kursi */
+}
+.seat:hover:not(.selected):not(.booked) {
+    background-color: #b3e5fc;
+}
+
+.seat.booked {
+  background-color: #e0e0e0;
+  color: #777;
+  cursor: not-allowed;
+  border-color: #c0c0c0;
+}
+
+
+#booking-summary {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #ffe2e2;
+  border-radius: 8px;
+  border: 1px solid #ffc7c7;
+}
+#booking-summary h3 {
+    color: #8785a2;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ffc7c7;
+    padding-bottom: 10px;
+}
+#booking-summary p {
+    margin: 8px 0;
+    font-size: 1rem;
+}
+#booking-summary p strong {
+    font-size: 1.1rem;
+    color: #333;
+}
+
+
+#back-to-gallery-btn, #proceed-to-payment-btn, #back-to-booking-btn, #confirm-payment-btn, #back-to-home-btn {
+  display: block;
+  margin: 25px auto 10px auto;
+  background-color: #8785a2;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+#back-to-gallery-btn, #back-to-booking-btn {
+    background-color: #aaa;
+}
+#back-to-gallery-btn:hover, #back-to-booking-btn:hover {
+    background-color: #888;
+}
+
+
+#proceed-to-payment-btn:hover:not(:disabled), #confirm-payment-btn:hover {
+  background-color: #6b6885;
+}
+#back-to-home-btn:hover {
+    background-color: #6b6885;
+}
+
+
+#proceed-to-payment-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+#qris-code-container, #ticket-qr-code-container {
+    text-align: center;
+    margin: 20px 0;
+}
+#qris-code-container img, #ticket-qr-code-container img {
+    border: 1px solid #eee;
+    padding: 10px;
+    background-color: white;
+    border-radius: 8px;
+}
+
+#payment-page p, #confirmation-page p {
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+#payment-page p strong, #confirmation-page p strong {
+    color: #8785a2;
+}
+
+.ticket-details {
+    background-color: #f6f6f6;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    max-width: 500px;
+    margin: 20px auto;
+}
+.ticket-details h3 {
+    color: #8785a2;
+    margin-top: 0;
+    text-align: center;
+    margin-bottom: 15px;
+}
+.ticket-details p {
+    font-size: 1rem;
+    text-align: left;
+    margin: 8px 0;
+}
+#ticket-booking-code {
+    font-size: 1.5rem;
+    color: #d32f2f;
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: #ffe2e2;
+  padding: 25px 35px;
+  border: 1px solid #ffc7c7;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  position: relative;
+  color: #333;
+}
+
+.modal-content h2 {
+    color: #8785a2;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.close-modal-btn {
+  color: #8785a2;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-modal-btn:hover,
+.close-modal-btn:focus {
+  color: #5c5a77;
+  text-decoration: none;
+}
+
+.modal-content form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #8785a2;
+}
+
+.modal-content form input[type="text"],
+.modal-content form input[type="email"],
+.modal-content form input[type="password"] {
+  width: 100%; 
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ffc7c7;
+  border-radius: 8px;
+  box-sizing: border-box; 
+  font-size: 1rem;
+}
+
+.modal-content form input[type="text"]:focus,
+.modal-content form input[type="email"]:focus,
+.modal-content form input[type="password"]:focus {
+    border-color: #8785a2;
+    outline: none;
+    box-shadow: 0 0 5px rgba(135, 133, 162, 0.5);
+}
+
+.modal-submit-btn {
+  background-color: #8785a2;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  width: 100%;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+}
+
+.modal-submit-btn:hover {
+  background-color: #6b6885;
+}
+
+.modal-switch {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+.modal-switch a {
+    color: #8785a2;
+    font-weight: bold;
+    text-decoration: none;
+}
+.modal-switch a:hover {
+    text-decoration: underline;
+}
+
+/* User Auth Nav styles */
+.user-auth-nav-item {
+  background: none;
+  border: 2px solid #8785a2;
+  color: #8785a2;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 12px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.user-auth-nav-item:hover {
+  background-color: #8785a2;
+  color: white;
+}
+
+.user-profile-name {
+  color: #8785a2;
+  font-weight: 600;
+  margin-left: 12px; /* Disesuaikan agar tidak terlalu rapat jika hanya nama */
+  padding: 8px 0; 
+}
+.nav-right .user-profile-name + .user-auth-nav-item { /* Memberi margin hanya jika ada tombol setelah nama */
+    margin-left: 12px;
+}

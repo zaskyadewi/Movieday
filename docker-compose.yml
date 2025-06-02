@@ -1,0 +1,67 @@
+services:
+  mysqldb:
+    image: mysql:8.0
+    container_name: movieday_mysql_service
+    restart: unless-stopped
+    environment:
+      # SARAN: Pindahkan ini ke file .env dan gunakan ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: cacamovieday26
+      # SARAN: Pindahkan ini ke file .env dan gunakan ${MYSQL_DATABASE}
+      MYSQL_DATABASE: movieday_db
+      # SARAN: Pindahkan ini ke file .env dan gunakan ${MYSQL_USER}
+      MYSQL_USER: movieday
+      # SARAN: Pindahkan ini ke file .env, gunakan ${MYSQL_PASSWORD}, dan BUAT PASSWORD INI BERBEDA dari ROOT_PASSWORD
+      MYSQL_PASSWORD: cacamovieday26
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_app_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - movieday_app_network
+    # Anda bisa menambahkan kembali healthcheck jika sudah yakin password root terbaca
+    # healthcheck:
+    #   test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+
+  backend_api:
+    build: ./server 
+    container_name: movieday_backend_service
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      DB_HOST: mysqldb # Benar
+      DB_USER: ${MYSQL_USER} # Bagus, mengambil dari .env (pastikan MYSQL_USER ada di .env)
+      DB_PASSWORD: ${MYSQL_PASSWORD} # Bagus, mengambil dari .env (pastikan MYSQL_PASSWORD ada di .env)
+      DB_NAME: ${MYSQL_DATABASE} # Bagus, mengambil dari .env (pastikan MYSQL_DATABASE ada di .env)
+      NODE_ENV: ${NODE_ENV:-development} # Bagus
+    depends_on:
+      - mysqldb
+    volumes:
+      - ./server:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - movieday_app_network
+
+  app:
+    build:
+      context: .        
+      dockerfile: DockerFile 
+    container_name: movieday_frontend_service
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend_api
+    networks:
+      - movieday_app_network
+
+volumes:
+  mysql_app_data:
+
+networks:
+  movieday_app_network:
+    driver: bridge
