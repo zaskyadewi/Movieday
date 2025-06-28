@@ -2,15 +2,16 @@
 
 // 1. Import library
 const express = require('express');
-const mysql = require('mysql2/promise'); 
+const mysql = require('mysql2/promise'); // Menggunakan versi promise
 const cors = require('cors');
-const bcrypt = require('bcryptjs'); 
-const jwt = require('jsonwebtoken'); 
+const bcrypt = require('bcryptjs'); // Untuk hashing password
+const jwt = require('jsonwebtoken'); // Untuk otentikasi
 
 // 2. Setup aplikasi Express
 const app = express();
 const port = 3001;
 const JWT_SECRET_KEY = 'cacamovieday26'; 
+
 // 3. Middleware
 app.use(cors());
 app.use(express.json());
@@ -20,7 +21,7 @@ const dbPool = mysql.createPool({
   host: 'localhost',
   port: 3307,
   user: 'movieday', 
-  password: 'cacamovieday26', 
+  password: 'cacamovieday26',
   database: 'movieday_db',
   waitForConnections: true,
   connectionLimit: 10,
@@ -89,11 +90,12 @@ app.get('/api/cities', async (req, res) => {
 
 const getMoviesByStatus = async (req, res, status) => {
     const { city } = req.query;
-    if (!city) return res.status(400).json({ message: 'Parameter kota diperlukan' });
+    if (!city) {
+        return res.status(400).json({ message: 'Parameter kota diperlukan' });
+    }
     try {
         const query = `
-            SELECT DISTINCT m.*
-            FROM Movies m
+            SELECT DISTINCT m.* FROM Movies m
             JOIN Showtimes s ON m.movie_id = s.movie_id
             JOIN Cinemas c ON s.cinema_id = c.cinema_id
             JOIN Cities ci ON c.city_id = ci.city_id
@@ -102,11 +104,22 @@ const getMoviesByStatus = async (req, res, status) => {
         `;
         const [movies] = await dbPool.query(query, [city, status]);
         res.json(movies);
-    } catch (err) { res.status(500).json({ message: `Gagal mengambil film ${status}` }); }
+    } catch (err) {
+        console.error(`Error saat mengambil film ${status} untuk kota ${city}:`, err);
+        res.status(500).json({ message: `Gagal mengambil film ${status}` });
+    }
 };
 
 app.get('/api/movies/now-showing', (req, res) => getMoviesByStatus(req, res, 'now_showing'));
 app.get('/api/movies/upcoming', (req, res) => getMoviesByStatus(req, res, 'upcoming'));
+    try {
+        const query = `SELECT * FROM Movies WHERE status = 'upcoming' LIMIT 7;`;
+        const [movies] = await dbPool.query(query);
+        res.json(movies);
+    } catch (err) {
+        res.status(500).json({ message: 'Gagal mengambil film upcoming' });
+    }
+});
 
 
 app.get('/api/cinemas', async (req, res) => {
@@ -132,7 +145,7 @@ app.get('/api/showtimes', async (req, res) => {
         const [showtimes] = await dbPool.query(query, [movieId, cinemaId]);
         const formattedShowtimes = showtimes.map(st => ({
             showtime_id: st.showtime_id,
-            time_string: new Date(st.show_datetime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+            time_string: new Date(st.show_datetime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })
         }));
         res.json(formattedShowtimes);
     } catch (err) { res.status(500).json({ message: 'Gagal mengambil jadwal tayang' }); }
