@@ -1,22 +1,16 @@
-// Di dalam folder /server/
-
-// 1. Import library
 const express = require('express');
-const mysql = require('mysql2/promise'); // Menggunakan versi promise
+const mysql = require('mysql2/promise'); 
 const cors = require('cors');
-const bcrypt = require('bcryptjs'); // Untuk hashing password
-const jwt = require('jsonwebtoken'); // Untuk otentikasi
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-// 2. Setup aplikasi Express
 const app = express();
 const port = 3001;
 const JWT_SECRET_KEY = 'cacamovieday26'; 
 
-// 3. Middleware
 app.use(cors());
 app.use(express.json());
 
-// 4. Konfigurasi Database
 const dbPool = mysql.createPool({
   host: 'localhost',
   port: 3307,
@@ -28,23 +22,19 @@ const dbPool = mysql.createPool({
   queueLimit: 0
 });
 
-// Middleware untuk otentikasi token
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    if (token == null) return res.sendStatus(401); // Unauthorized
+    if (token == null) return res.sendStatus(401); 
 
     jwt.verify(token, JWT_SECRET_KEY, (err, user) => {
-        if (err) return res.sendStatus(403); // Forbidden
-        req.user = user; // Menambahkan payload user ke object request
+        if (err) return res.sendStatus(403);
+        req.user = user; 
         next();
     });
 };
 
 
-// === API ENDPOINTS ===
-
-// -- Otentikasi --
 app.post('/api/users/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -80,8 +70,7 @@ app.post('/api/users/login', async (req, res) => {
 });
 
 
-// -- Data Publik --
-app.get('/api/cities', async (req, res) => {
+app.get('/api/Cities', async (req, res) => {
     try {
         const [rows] = await dbPool.query('SELECT city_id, city_name FROM Cities ORDER BY city_name');
         res.json(rows);
@@ -118,8 +107,7 @@ app.get('/api/movies/upcoming', (req, res) => getMoviesByStatus(req, res, 'upcom
         res.json(movies);
     } catch (err) {
         res.status(500).json({ message: 'Gagal mengambil film upcoming' });
-    }
-});
+    };
 
 
 app.get('/api/cinemas', async (req, res) => {
@@ -160,11 +148,9 @@ app.get('/api/booked-seats', async (req, res) => {
     } catch (err) { res.status(500).json({ message: 'Gagal mengambil data kursi' }); }
 });
 
-
-// -- Booking (Memerlukan otentikasi) --
 app.post('/api/bookings', authenticateToken, async (req, res) => {
     const { showtimeId, seats } = req.body;
-    const userId = req.user.id; // Mengambil user ID dari token yang sudah diverifikasi
+    const userId = req.user.id; 
 
     const connection = await dbPool.getConnection();
     try {
@@ -204,7 +190,6 @@ app.post('/api/bookings', authenticateToken, async (req, res) => {
 });
 
 
-// Jalankan Server
 app.listen(port, () => {
-  console.log(`Server backend MovieDay berjalan di http://localhost:${port}`);
+  console.log(`Server backend MovieDay berjalan di http://localhost:${3001}`);
 });
