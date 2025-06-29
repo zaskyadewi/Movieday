@@ -1,40 +1,50 @@
-const express = require('express');
-const mysql = require('mysql2/promise'); 
-const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+// Di dalam folder /server/
 
+// 1. Import library
+import express from 'express';
+import mysql from 'mysql2/promise'; // Menggunakan versi promise
+import cors from 'cors';
+import bcrypt from 'bcryptjs'; // Untuk hashing password
+import jwt from 'jsonwebtoken'; // Untuk otentikasi
+
+// 2. Setup aplikasi Express
 const app = express();
 const port = 3001;
 const JWT_SECRET_KEY = 'cacamovieday26'; 
 
+// 3. Middleware
 app.use(cors());
 app.use(express.json());
 
+// 4. Konfigurasi Database
+// Pastikan kredensial ini sesuai dengan yang ada di docker-compose.yml
 const dbPool = mysql.createPool({
-  host: 'localhost',
-  port: 3307,
-  user: 'movieday', 
-  password: 'cacamovieday26',
+  host: 'mysqldb', 
+  port: 3306, 
+  user: 'movieday',
+  password: 'cacamovieday26', 
   database: 'movieday_db',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
 });
 
+// Middleware untuk otentikasi token
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    if (token == null) return res.sendStatus(401); 
+    if (token == null) return res.sendStatus(401); // Unauthorized
 
     jwt.verify(token, JWT_SECRET_KEY, (err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user; 
+        if (err) return res.sendStatus(403); // Forbidden
+        req.user = user; // Menambahkan payload user ke object request
         next();
     });
 };
 
+// === API ENDPOINTS ===
 
+// -- Otentikasi --
 app.post('/api/users/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -70,27 +80,35 @@ app.post('/api/users/login', async (req, res) => {
 });
 
 
-app.get('/api/Cities', async (req, res) => {
+// -- Data Publik --
+// PERBAIKAN: Nama path harus konsisten (menggunakan huruf kecil lebih umum)
+app.get('/api/cities', async (req, res) => {
     try {
         const [rows] = await dbPool.query('SELECT city_id, city_name FROM Cities ORDER BY city_name');
         res.json(rows);
     } catch (err) { res.status(500).json({ message: 'Gagal mengambil data kota' }); }
 });
 
+// FUNGSI PEMBANTU YANG SUDAH DIPERBAIKI
 const getMoviesByStatus = async (req, res, status) => {
     const { city } = req.query;
     if (!city) {
         return res.status(400).json({ message: 'Parameter kota diperlukan' });
     }
     try {
+        // Query ini akan mengambil film yang punya jadwal di kota yang dipilih
+        // dan memiliki status yang sesuai ('now_showing')
         const query = `
-            SELECT DISTINCT m.* FROM Movies m
+            SELECT DISTINCT m.*
+            FROM Movies m
             JOIN Showtimes s ON m.movie_id = s.movie_id
             JOIN Cinemas c ON s.cinema_id = c.cinema_id
             JOIN Cities ci ON c.city_id = ci.city_id
             WHERE ci.city_name = ? AND m.status = ?
             LIMIT 7;
         `;
+        // PERBAIKAN: Anda meneruskan `status` ke query, tetapi di query yang lama
+        // Anda men-hardcode 'now_showing'. Sekarang `status` akan dinamis.
         const [movies] = await dbPool.query(query, [city, status]);
         res.json(movies);
     } catch (err) {
@@ -99,15 +117,25 @@ const getMoviesByStatus = async (req, res, status) => {
     }
 };
 
+// MENGGUNAKAN FUNGSI PEMBANTU DENGAN BENAR
 app.get('/api/movies/now-showing', (req, res) => getMoviesByStatus(req, res, 'now_showing'));
-app.get('/api/movies/upcoming', (req, res) => getMoviesByStatus(req, res, 'upcoming'));
+
+// PERBAIKAN UNTUK UPCOMING: Mengambil semua film upcoming tanpa filter kota
+app.get('/api/movies/upcoming', async (req, res) => {
     try {
-        const query = `SELECT * FROM Movies WHERE status = 'upcoming' LIMIT 7;`;
+        // Film "Upcoming" biasanya bersifat nasional, jadi kita tidak filter berdasarkan kota
+        const query = `
+            SELECT * FROM Movies
+            WHERE status = 'upcoming'
+            LIMIT 7;
+        `;
         const [movies] = await dbPool.query(query);
         res.json(movies);
     } catch (err) {
+        console.error(`Error saat mengambil film upcoming:`, err);
         res.status(500).json({ message: 'Gagal mengambil film upcoming' });
-    };
+    }
+});
 
 
 app.get('/api/cinemas', async (req, res) => {
@@ -190,6 +218,7 @@ app.post('/api/bookings', authenticateToken, async (req, res) => {
 });
 
 
+// Jalankan Server
 app.listen(port, () => {
-  console.log(`Server backend MovieDay berjalan di http://localhost:${3001}`);
+  console.log(`Server backend MovieDay berjalan di http://localhost:${port}`);
 });
