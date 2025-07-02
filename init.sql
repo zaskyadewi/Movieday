@@ -1,20 +1,20 @@
 CREATE TYPE movie_status AS ENUM ('now_showing', 'upcoming', 'ended');
 CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed');
 
-CREATE TABLE IF NOT EXISTS Cities (
+CREATE TABLE IF NOT EXISTS cities (
     city_id SERIAL PRIMARY KEY,
     city_name VARCHAR(100) NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS Cinemas (
+CREATE TABLE IF NOT EXISTS cinemas (
     cinema_id SERIAL PRIMARY KEY,
     city_id INT NOT NULL,
     cinema_name VARCHAR(150) NOT NULL,
     address TEXT,
-    FOREIGN KEY (city_id) REFERENCES Cities(city_id) ON DELETE CASCADE
+    FOREIGN KEY (city_id) REFERENCES cities(city_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Movies (
+CREATE TABLE IF NOT EXISTS movies (
     movie_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     synopsis TEXT,
@@ -27,17 +27,17 @@ CREATE TABLE IF NOT EXISTS Movies (
     price DECIMAL(10, 2) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Showtimes (
+CREATE TABLE IF NOT EXISTS showtimes (
     showtime_id SERIAL PRIMARY KEY,
     movie_id INT NOT NULL,
     cinema_id INT NOT NULL,
     show_datetime TIMESTAMP NOT NULL,
-    FOREIGN KEY (movie_id) REFERENCES Movies(movie_id) ON DELETE CASCADE,
-    FOREIGN KEY (cinema_id) REFERENCES Cinemas(cinema_id) ON DELETE CASCADE,
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id) ON DELETE CASCADE,
+    FOREIGN KEY (cinema_id) REFERENCES cinemas(cinema_id) ON DELETE CASCADE,
     UNIQUE (movie_id, cinema_id, show_datetime)
 );
 
-CREATE TABLE IF NOT EXISTS Users (
+CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS Users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS Bookings (
+CREATE TABLE IF NOT EXISTS bookings (
     booking_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     showtime_id INT NOT NULL,
@@ -54,11 +54,11 @@ CREATE TABLE IF NOT EXISTS Bookings (
     total_price DECIMAL(10, 2) NOT NULL,
     payment_status payment_status DEFAULT 'pending',
     booking_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE RESTRICT,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE RESTRICT,
     FOREIGN KEY (showtime_id) REFERENCES Showtimes(showtime_id) ON DELETE RESTRICT
 );
 
-CREATE TABLE IF NOT EXISTS BookedSeats (
+CREATE TABLE IF NOT EXISTS bookedSeats (
     booked_seat_id SERIAL PRIMARY KEY,
     booking_id INT NOT NULL,
     showtime_id INT NOT NULL,
@@ -69,10 +69,10 @@ CREATE TABLE IF NOT EXISTS BookedSeats (
 );
 
 -- 1. Kota
-INSERT INTO Cities (city_id, city_name) VALUES (1, 'Jakarta'), (2, 'Bandung'), (3, 'Malang') ON CONFLICT DO NOTHING;
+INSERT INTO cities (city_id, city_name) VALUES (1, 'Jakarta'), (2, 'Bandung'), (3, 'Malang') ON CONFLICT DO NOTHING;
 
 -- 2. Bioskop
-INSERT INTO Cinemas (cinema_id, city_id, cinema_name, address) VALUES
+INSERT INTO cinemas (cinema_id, city_id, cinema_name, address) VALUES
 (1, 1, 'Movieday Grand Indonesia', 'Jl. MH Thamrin No.1, Jakarta Pusat'),
 (2, 1, 'Movieday Plaza Senayan', 'Jl. Asia Afrika No.8, Jakarta Pusat'),
 (3, 1, 'Movieday Kelapa Gading', 'Jl. Boulevard Kelapa Gading, Jakarta Utara'),
@@ -84,7 +84,7 @@ INSERT INTO Cinemas (cinema_id, city_id, cinema_name, address) VALUES
 (9, 3, 'Movieday Araya', 'Jl. Blimbing Indah Megah No.2, Malang') ON CONFLICT DO NOTHING;
 
 -- 3. Film
-INSERT INTO Movies (movie_id, title, synopsis, poster_url, promo_image_url, trailer_url, duration_minutes, rating, status, price) VALUES
+INSERT INTO movies (movie_id, title, synopsis, poster_url, promo_image_url, trailer_url, duration_minutes, rating, status, price) VALUES
 (1, 'SEVENTEEN RIGHT HERE WORLD TOUR IN CINEMAS', 'Experience the unforgettable moments of SEVENTEEN [RIGHT HERE] WORLD TOUR on the big screen, starting with the electrifying kickoff concert in Goyang!', 'https://dx35vtwkllhj9.cloudfront.net/trafalgarreleasing/seventeen-right-here-world-tour-in-cinemas/images/regions/intl/onesheet.jpg', 'https://dx35vtwkllhj9.cloudfront.net/trafalgarreleasing/seventeen-right-here-world-tour-in-cinemas/images/regions/intl/header.jpg', 'https://www.youtube.com/watch?v=zArZTpp43as', 130, 'SU', 'now_showing', 75000),
 (101, 'Youth Of May', 'Kisah yang berlatar belakang Pemberontakan Gwangju tahun 1980, menggambarkan cinta antara dua orang muda di tengah kondisi politik yang rumit dan berdarah.', 'https://i.pinimg.com/736x/6e/2a/6b/6e2a6bf741a6d759c441872ac195332b.jpg', NULL, NULL, 341, '17+', 'now_showing', 50000),
 (102, 'Final Destination: Bloodlines', 'Final Destination: Bloodlines adalah film horor supranatural Amerika Serikat tahun 2025, film ini merupakan sekuel ke enam dari serial Final Destination.', 'https://upload.wikimedia.org/wikipedia/id/a/ab/Final_Destination_Bloodlines_%282025%29_poster.jpg', NULL, NULL, 109, '17+', 'now_showing', 50000),
@@ -114,7 +114,7 @@ INSERT INTO Movies (movie_id, title, synopsis, poster_url, promo_image_url, trai
 ON CONFLICT (movie_id) DO NOTHING;
 
 -- 4. Jadwal Tayang (Showtimes) untuk HARI INI
-INSERT INTO Showtimes (movie_id, cinema_id, show_datetime) VALUES
+INSERT INTO showtimes (movie_id, cinema_id, show_datetime) VALUES
 (1, 1, CURRENT_DATE + interval '13 hours'), (1, 1, CURRENT_DATE + interval '16 hours'), (1, 1, CURRENT_DATE + interval '19 hours'), (1, 1, CURRENT_DATE + interval '22 hours'),
 (1, 4, CURRENT_DATE + interval '13 hours'), (1, 4, CURRENT_DATE + interval '16 hours'), (1, 4, CURRENT_DATE + interval '19 hours'), (1, 4, CURRENT_DATE + interval '22 hours'),
 (1, 7, NOW()), (1, 7, NOW() + INTERVAL 3 HOUR), (1, 7, NOW() + INTERVAL 6 HOUR), (1, 7, NOW() + INTERVAL 9 HOUR),
@@ -141,7 +141,7 @@ INSERT INTO Showtimes (movie_id, cinema_id, show_datetime) VALUES
 ON CONFLICT (movie_id, cinema_id, show_datetime) DO NOTHING;
 
 -- 5. Pengguna Contoh
-INSERT INTO Users (name, email, password_hash) VALUES
+INSERT INTO users (name, email, password_hash) VALUES
 ('Zaskya Dewi', 'zaskya@example.com', '$2a$10$Y.5qS7N4bZ7Oa5c3X2e9j.eU6e7i8f9g0h1i2j3k4l5m6n7o8p9q'),
 ('Budi Santoso', 'budi@example.com', '$2a$10$Z.6rT8O5cZ8Pq1e4X3f0k.fV7g8h9i0j1k2l3m4n5o6p7q8r9s0t')
 ON CONFLICT (email) DO NOTHING;
