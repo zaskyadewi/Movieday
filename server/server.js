@@ -1,11 +1,9 @@
-// Di dalam folder /server/
-
 // 1. Import library
 import express from 'express';
 import mysql from 'mysql2/promise'; // Menggunakan versi promise
 import cors from 'cors';
-import bcrypt from 'bcryptjs'; // Untuk hashing password
-import jwt from 'jsonwebtoken'; // Untuk otentikasi
+import bcrypt from 'bcryptjs'; 
+import jwt from 'jsonwebtoken'; 
 
 // 2. Setup aplikasi Express
 const app = express();
@@ -19,8 +17,8 @@ app.use(express.json());
 // 4. Konfigurasi Database
 // Pastikan kredensial ini sesuai dengan yang ada di docker-compose.yml
 const dbPool = mysql.createPool({
-  host: 'mysqldb', 
-  port: 3306, 
+  host: 'localhost', 
+  port: 3307, 
   user: 'movieday',
   password: 'cacamovieday26', 
   database: 'movieday_db',
@@ -154,7 +152,7 @@ app.get('/api/showtimes', async (req, res) => {
     try {
         const query = `
             SELECT showtime_id, show_datetime FROM Showtimes
-            WHERE movie_id = ? AND cinema_id = ? AND DATE(show_datetime) = CURDATE()
+            WHERE movie_id = ? AND cinema_id = ?
             ORDER BY show_datetime
             LIMIT 4;
         `;
@@ -164,7 +162,9 @@ app.get('/api/showtimes', async (req, res) => {
             time_string: new Date(st.show_datetime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })
         }));
         res.json(formattedShowtimes);
-    } catch (err) { res.status(500).json({ message: 'Gagal mengambil jadwal tayang' }); }
+    } catch (err) {
+        res.status(500).json({ message: 'Gagal mengambil jadwal tayang' });
+    }
 });
 
 app.get('/api/booked-seats', async (req, res) => {
